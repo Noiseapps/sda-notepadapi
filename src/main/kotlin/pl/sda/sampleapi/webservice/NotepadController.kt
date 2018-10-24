@@ -23,8 +23,8 @@ class NotepadController(private val noteRepo: NoteRepository) {
     }
 
     @GetMapping
-    fun getAllNotes(): MutableList<Note> {
-        return noteRepo.findAll()
+    fun getAllNotes(@RequestParam creator: String): List<Note> {
+        return noteRepo.findAllByCreator(creator)
     }
 
     @PostMapping()
@@ -32,9 +32,12 @@ class NotepadController(private val noteRepo: NoteRepository) {
         return noteRepo.save(Note(null, command.title, command.content, command.creator, Instant.now().toEpochMilli()))
     }
 
-    @GetMapping("/{noteId}")
-    fun getNote(@PathVariable noteId: String): Note {
-        return noteRepo.findById(noteId).unwrap() ?: throw NotFoundException(noteId)
+    @PutMapping("/{noteId}")
+    fun updateNote(@PathVariable noteId: String, @Valid @RequestBody command: CreateNoteCommand): Note {
+        val unwrap = noteRepo.findById(noteId).unwrap()  ?: throw NotFoundException(noteId)
+        unwrap.title = command.title
+        unwrap.content = command.content
+        return noteRepo.save(unwrap)
     }
 
     @DeleteMapping("/{noteId}")

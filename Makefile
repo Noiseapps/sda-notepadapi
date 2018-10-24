@@ -9,3 +9,7 @@ run: app
 	docker-compose up -d
 
 all: clean run
+
+push: clean app
+	docker-compose build
+	docker-compose push
