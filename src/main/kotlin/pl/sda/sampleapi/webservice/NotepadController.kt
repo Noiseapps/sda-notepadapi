@@ -6,7 +6,6 @@ import pl.sda.sampleapi.NoteRepository
 import pl.sda.sampleapi.exception.NotFoundException
 import pl.sda.sampleapi.models.CreateNoteCommand
 import pl.sda.sampleapi.models.Note
-import java.time.Instant
 import java.util.*
 import javax.validation.Valid
 
@@ -23,26 +22,26 @@ class NotepadController(private val noteRepo: NoteRepository) {
     }
 
     @GetMapping
-    fun getAllNotes(@RequestParam creator: String): List<Note> {
+    fun getAllNotes(@RequestHeader("creator-name") creator: String): List<Note> {
         return noteRepo.findAllByCreator(creator)
     }
 
-    @PostMapping()
-    fun createNote(@Valid @RequestBody command: CreateNoteCommand): Note {
-        return noteRepo.save(Note(null, command.title, command.content, command.creator, Instant.now().toEpochMilli()))
+    @PostMapping
+    fun createNote(@Valid @RequestBody command: CreateNoteCommand, @RequestHeader("creator-name") creator: String): Note {
+        return noteRepo.save(Note(title = command.title, content = command.content, creator = creator))
     }
 
     @PutMapping("/{noteId}")
-    fun updateNote(@PathVariable noteId: String, @Valid @RequestBody command: CreateNoteCommand): Note {
-        val unwrap = noteRepo.findById(noteId).unwrap()  ?: throw NotFoundException(noteId)
+    fun updateNote(@PathVariable noteId: String, @Valid @RequestBody command: CreateNoteCommand, @RequestHeader("creator-name") creator: String): Note {
+        val unwrap = noteRepo.findByIdAndCreator(noteId, creator).unwrap() ?: throw NotFoundException(noteId)
         unwrap.title = command.title
         unwrap.content = command.content
         return noteRepo.save(unwrap)
     }
 
     @DeleteMapping("/{noteId}")
-    fun deleteNote(@PathVariable noteId: String) {
-        noteRepo.findById(noteId).unwrap() ?: throw NotFoundException(noteId)
+    fun deleteNote(@PathVariable noteId: String, @RequestHeader("creator-name") creator: String) {
+        noteRepo.findByIdAndCreator(noteId, creator).unwrap() ?: throw NotFoundException(noteId)
         noteRepo.deleteById(noteId)
     }
 

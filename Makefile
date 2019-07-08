@@ -5,6 +5,7 @@ app :
 	./gradlew build
 
 run: app
+    export USER_UID=${id -u}
 	docker-compose build
 	docker-compose up -d
 

@@ -1,4 +1,4 @@
-FROM openjdk:8u171
+FROM openjdk:8u212
 WORKDIR /opt/javaSrv
 CMD java -jar app.jar
 EXPOSE 8080
