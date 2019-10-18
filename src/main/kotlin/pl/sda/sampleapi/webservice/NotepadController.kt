@@ -32,7 +32,7 @@ class NotepadController(private val noteRepo: H2NoteRepository) {
     }
 
     @PutMapping("/{noteId}")
-    fun updateNote(@PathVariable noteId: String, @Valid @RequestBody command: CreateNoteCommand, @RequestHeader("creator-name") creator: String): Note {
+    fun updateNote(@PathVariable noteId: Long, @Valid @RequestBody command: CreateNoteCommand, @RequestHeader("creator-name") creator: String): Note {
         val unwrap = noteRepo.findByIdAndCreator(noteId, creator).unwrap() ?: throw NotFoundException(noteId)
         unwrap.title = command.title
         unwrap.content = command.content
@@ -40,7 +40,7 @@ class NotepadController(private val noteRepo: H2NoteRepository) {
     }
 
     @DeleteMapping("/{noteId}")
-    fun deleteNote(@PathVariable noteId: String, @RequestHeader("creator-name") creator: String) {
+    fun deleteNote(@PathVariable noteId: Long, @RequestHeader("creator-name") creator: String) {
         noteRepo.findByIdAndCreator(noteId, creator).unwrap() ?: throw NotFoundException(noteId)
         noteRepo.deleteById(noteId)
     }
